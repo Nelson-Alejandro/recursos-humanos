@@ -1,0 +1,13 @@
+# Angular
+empleados-frontend/node_modules/
+empleados-frontend/dist/
+
+# Spring Boot
+empleados-backend/target/
+
+# IDEs
+.idea/
+.vscode/
+
+# Otros
+.DS_Store
