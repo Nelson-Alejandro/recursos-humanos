@@ -1,0 +1,92 @@
+<div class="form-layout">
+  <div class="form-container">
+    <!-- Header -->
+    <div class="form-header">
+      <button class="btn-back" (click)="cancelar()">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Volver
+      </button>
+      <div>
+        <h2>{{ isEdit ? 'Editar empleado' : 'Nuevo empleado' }}</h2>
+        <p>{{ isEdit ? 'Modifica los datos del empleado' : 'Completa el formulario para registrar un nuevo empleado' }}</p>
+      </div>
+    </div>
+
+    <div class="alert-error" *ngIf="error">{{ error }}</div>
+    <div class="alert-success" *ngIf="success">✓ {{ success }}</div>
+
+    <div class="loading-state" *ngIf="loadingData">
+      <div class="spinner-lg"></div><p>Cargando datos...</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" *ngIf="!loadingData" #f="ngForm">
+      <div class="form-card">
+        <h3 class="section-title">Información personal</h3>
+        <div class="grid-2">
+          <div class="field">
+            <label>Nombres *</label>
+            <input type="text" [(ngModel)]="empleado.nombres" name="nombres" required placeholder="Juan Carlos"/>
+          </div>
+          <div class="field">
+            <label>Apellidos *</label>
+            <input type="text" [(ngModel)]="empleado.apellidos" name="apellidos" required placeholder="García López"/>
+          </div>
+          <div class="field">
+            <label>Email *</label>
+            <input type="email" [(ngModel)]="empleado.email" name="email" required placeholder="juan@empresa.com"/>
+          </div>
+          <div class="field">
+            <label>Teléfono</label>
+            <input type="text" [(ngModel)]="empleado.telefono" name="telefono" placeholder="+51 999 999 999"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3 class="section-title">Información laboral</h3>
+        <div class="grid-2">
+          <div class="field">
+            <label>Cargo *</label>
+            <input type="text" [(ngModel)]="empleado.cargo" name="cargo" required placeholder="Desarrollador Senior"/>
+          </div>
+          <div class="field">
+            <label>Departamento *</label>
+            <select [(ngModel)]="empleado.departamento" name="departamento" required>
+              <option value="" disabled>Selecciona un departamento</option>
+              <option *ngFor="let dep of departamentos" [value]="dep">{{ dep }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Salario (S/) *</label>
+            <input type="number" [(ngModel)]="empleado.salario" name="salario" required min="0" placeholder="3500"/>
+          </div>
+          <div class="field">
+            <label>Fecha de contratación *</label>
+            <input type="date" [(ngModel)]="empleado.fechaContratacion" name="fechaContratacion" required/>
+          </div>
+        </div>
+
+        <div class="field" *ngIf="isEdit">
+          <label class="toggle-label">
+            <span>Estado del empleado</span>
+            <div class="toggle-wrapper">
+              <input type="checkbox" [(ngModel)]="empleado.activo" name="activo" id="activo"/>
+              <label for="activo" class="toggle"></label>
+              <span class="toggle-text">{{ empleado.activo ? 'Activo' : 'Inactivo' }}</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="loading || f.invalid">
+          <span *ngIf="!loading">{{ isEdit ? 'Guardar cambios' : 'Registrar empleado' }}</span>
+          <span *ngIf="loading" class="spinner"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

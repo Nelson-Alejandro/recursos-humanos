@@ -1,0 +1,159 @@
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+        <rect width="48" height="48" rx="10" fill="#4F46E5"/>
+        <path d="M14 34L24 14L34 34H14Z" fill="white" opacity="0.9"/>
+        <circle cx="24" cy="28" r="4" fill="#818CF8"/>
+      </svg>
+      <span>GestiónRRHH</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+        Empleados
+      </a>
+      <a class="nav-item" *ngIf="isAdmin" (click)="irAUsuarios()">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009.6 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9.6a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+        Usuarios RRHH
+      </a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ username.charAt(0).toUpperCase() }}</div>
+      <div class="user-info">
+        <span class="user-name">{{ username }}</span>
+        <span class="user-rol">{{ isAdmin ? 'Administrador' : 'RRHH' }}</span>
+      </div>
+      <button class="btn-logout" (click)="logout()" title="Cerrar sesión">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h2>Empleados</h2>
+        <p>Gestiona el personal de la empresa</p>
+      </div>
+      <button class="btn-primary" (click)="nuevoEmpleado()">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Nuevo empleado
+      </button>
+    </div>
+
+    <div class="alert-error" *ngIf="error">{{ error }}</div>
+
+    <!-- Search bar -->
+    <div class="search-bar">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input type="text" [(ngModel)]="search" (ngModelChange)="applyFilter()"
+             placeholder="Buscar por nombre, cargo, departamento..."/>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner-lg"></div>
+      <p>Cargando empleados...</p>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper" *ngIf="!loading">
+      <table>
+        <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Cargo</th>
+          <th>Departamento</th>
+          <th>Salario</th>
+          <th>F. Contratación</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let e of filtered" [class.inactive]="!e.activo">
+          <td>
+            <div class="empleado-info">
+              <div class="avatar">{{ e.nombres.charAt(0) }}{{ e.apellidos.charAt(0) }}</div>
+              <div>
+                <span class="emp-name">{{ e.nombres }} {{ e.apellidos }}</span>
+                <span class="emp-email">{{ e.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td>{{ e.cargo }}</td>
+          <td>{{ e.departamento }}</td>
+          <td class="salario">S/ {{ e.salario | number:'1.2-2' }}</td>
+          <td>{{ e.fechaContratacion | date:'dd/MM/yyyy' }}</td>
+          <td>
+              <span class="badge" [class.badge-active]="e.activo" [class.badge-inactive]="!e.activo">
+                {{ e.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-icon btn-edit" (click)="editEmpleado(e.id!)" title="Editar">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/>
+                </svg>
+              </button>
+              <button class="btn-icon btn-delete" (click)="confirmDelete(e.id!)" title="Eliminar">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V4h8v3"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="7" class="empty-state">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#d1d5db" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+              <circle cx="9" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+            <p>No se encontraron empleados</p>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer" *ngIf="!loading">
+      {{ filtered.length }} empleado{{ filtered.length !== 1 ? 's' : '' }} encontrado{{ filtered.length !== 1 ? 's' : '' }}
+    </div>
+  </main>
+</div>
+
+<!-- Modal confirmación eliminar -->
+<div class="modal-overlay" *ngIf="confirmDeleteId !== null">
+  <div class="modal">
+    <div class="modal-icon">
+      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#dc2626" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+    </div>
+    <h3>¿Eliminar empleado?</h3>
+    <p>Esta acción no se puede deshacer.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cancelDelete()">Cancelar</button>
+      <button class="btn-danger" (click)="deleteEmpleado()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
